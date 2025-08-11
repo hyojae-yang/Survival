@@ -53,5 +53,7 @@ MonoBehaviour:
   damageIncreasePerLevel: 1
   baseCooldown: 1
   cooldownDecreasePerLevel: 0.1
+  baseRangeIncrease: 0
+  rangeIncreasePerLevel: 0
   currentLevel: 0
-  speedIncrease: 1
+  speedIncreasePerLevel: 0.5

@@ -5,48 +5,47 @@ public class PlayerWeaponManager : MonoBehaviour
 {
     public static PlayerWeaponManager Instance;
 
-    // 인스펙터에서 무기 프리팹을 할당할 리스트
     public List<GameObject> weaponPrefabs;
+    public List<Weapon> activeWeapons = new List<Weapon>();
 
-    // 현재 활성화된 무기 인스턴스를 담는 리스트
-    private List<Weapon> activeWeapons = new List<Weapon>();
+    // 패시브 스킬의 레벨을 관리할 딕셔너리
+    public Dictionary<string, HealthBoost> activePassiveSkills = new Dictionary<string, HealthBoost>();
+    public Dictionary<string, SpeedBoost> activeSpeedBoostSkills = new Dictionary<string, SpeedBoost>();
 
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     void Start()
     {
-        // =========================================================
-        // 수정된 부분: SettingsManager에서 선택된 무기로 게임 시작
-        // =========================================================
         if (SettingsManager.Instance != null && weaponPrefabs.Count > 0)
         {
             int initialWeaponIndex = SettingsManager.Instance.selectedWeapon;
-
-            // 인덱스가 유효한지 확인 후 무기 추가
             if (initialWeaponIndex >= 0 && initialWeaponIndex < weaponPrefabs.Count)
             {
                 AddNewWeapon(weaponPrefabs[initialWeaponIndex]);
             }
             else
             {
-                // 잘못된 인덱스일 경우, 기본 무기(0번 인덱스) 추가
                 AddNewWeapon(weaponPrefabs[0]);
             }
         }
         else
         {
-            // SettingsManager가 없거나 weaponPrefabs 리스트가 비어있을 경우
-            // 기존 로직처럼 첫 번째 무기를 추가
             if (activeWeapons.Count == 0 && weaponPrefabs.Count > 0)
             {
                 AddNewWeapon(weaponPrefabs[0]);
             }
         }
 
-        // 모든 무기의 초기 스탯을 설정합니다.
         foreach (Weapon weapon in activeWeapons)
         {
             if (weapon != null)
@@ -56,20 +55,30 @@ public class PlayerWeaponManager : MonoBehaviour
         }
     }
 
-    // 레벨업 시 호출될 함수
-    // PlayerWeaponManager.cs의 LevelUpWeapon 함수 수정
     public void LevelUpWeapon(GameObject weaponPrefab)
     {
+
+        if (weaponPrefab.GetComponent<HealthBoost>() != null)
+        {
+            LevelUpPassiveSkill<HealthBoost>(weaponPrefab, activePassiveSkills);
+            return;
+        }
+
+        if (weaponPrefab.GetComponent<SpeedBoost>() != null)
+        {
+            LevelUpPassiveSkill<SpeedBoost>(weaponPrefab, activeSpeedBoostSkills);
+            return;
+        }
+
         Weapon existingWeapon = GetWeaponInstanceFromPrefab(weaponPrefab);
 
         if (existingWeapon != null)
         {
             existingWeapon.LevelUp();
 
-            // 수정: 레벨업 시 모든 무기 정보 UI 업데이트 호출
             if (WeaponInfoUI.Instance != null)
             {
-                WeaponInfoUI.Instance.UpdateAllWeaponInfoUI(activeWeapons);
+                WeaponInfoUI.Instance.UpdateAllWeaponInfoUI();
             }
         }
         else
@@ -78,7 +87,42 @@ public class PlayerWeaponManager : MonoBehaviour
         }
     }
 
-    // PlayerWeaponManager.cs의 AddNewWeapon 함수 수정
+    private void LevelUpPassiveSkill<T>(GameObject passiveSkillPrefab, Dictionary<string, T> passiveSkillsDictionary) where T : MonoBehaviour
+    {
+        string skillName = passiveSkillPrefab.name;
+        T skillComponent = null;
+
+        if (passiveSkillsDictionary.ContainsKey(skillName))
+        {
+            skillComponent = passiveSkillsDictionary[skillName];
+        }
+        else
+        {
+            GameObject newSkillObject = Instantiate(passiveSkillPrefab, transform.position, Quaternion.identity, transform);
+            skillComponent = newSkillObject.GetComponent<T>();
+            if (skillComponent != null)
+            {
+                passiveSkillsDictionary.Add(skillName, skillComponent);
+            }
+        }
+
+        if (skillComponent is HealthBoost healthBoost)
+        {
+            healthBoost.OnLevelUp();
+        }
+        else if (skillComponent is SpeedBoost speedBoost)
+        {
+            speedBoost.OnLevelUp();
+        }
+
+        PlayerStats.Instance.RecalculateStats();
+
+        if (WeaponInfoUI.Instance != null)
+        {
+            WeaponInfoUI.Instance.UpdateAllWeaponInfoUI();
+        }
+    }
+
     public void AddNewWeapon(GameObject newWeaponPrefab)
     {
         GameObject newWeaponObject = Instantiate(newWeaponPrefab, transform.position, Quaternion.identity, transform);
@@ -89,15 +133,33 @@ public class PlayerWeaponManager : MonoBehaviour
             activeWeapons.Add(newWeapon);
             newWeapon.InitializeWeapon();
 
-            // 수정: 새로운 무기 획득 시 모든 무기 정보 UI 업데이트 호출
             if (WeaponInfoUI.Instance != null)
             {
-                WeaponInfoUI.Instance.UpdateAllWeaponInfoUI(activeWeapons);
+                WeaponInfoUI.Instance.UpdateAllWeaponInfoUI();
             }
         }
     }
 
-    // 프리팹에 해당하는 무기 인스턴스를 찾는 헬퍼 함수
+    public float GetHealthBonusMultiplier()
+    {
+        float bonus = 0;
+        foreach (var skill in activePassiveSkills.Values)
+        {
+            bonus += skill.GetHealthMultiplierBonus();
+        }
+        return bonus;
+    }
+
+    public float GetSpeedIncreaseBonus()
+    {
+        float bonus = 0;
+        foreach (var skill in activeSpeedBoostSkills.Values)
+        {
+            bonus += skill.GetSpeedIncreaseBonus();
+        }
+        return bonus;
+    }
+
     private Weapon GetWeaponInstanceFromPrefab(GameObject prefab)
     {
         foreach (Weapon weapon in activeWeapons)

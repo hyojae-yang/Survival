@@ -3,37 +3,30 @@ using UnityEngine;
 // Weapon 스크립트를 상속받는 패시브 스킬
 public class HealthBoost : Weapon
 {
-    // 패시브 효과를 적용할 플레이어 스탯
-    private PlayerStats playerStats;
+    // 레벨당 체력 보너스 배율 (인스펙터에서 설정)
+    public float healthMultiplierBonus = 1.0f;
 
-    // 체력 증가 배율 (인스펙터에서 설정)
-    public int healthMultiplier = 2;
+    // 패시브 스킬의 현재 레벨을 추적하는 변수
+    public int healthBoostLevel = 0;
 
     void Start()
     {
-        // 플레이어 오브젝트에서 PlayerStats 스크립트를 가져옵니다.
-        playerStats = GameObject.FindWithTag("Player").GetComponent<PlayerStats>();
-
-        // 패시브 효과를 즉시 적용합니다.
-        ApplyPassiveEffect();
+        // Start에서는 아무 작업도 하지 않습니다.
+        // 이 스크립트는 PlayerWeaponManager를 통해 OnLevelUp()이 호출될 때만 작동합니다.
     }
 
-    // 패시브 효과 적용 함수
-    private void ApplyPassiveEffect()
+    // PlayerWeaponManager에서 호출할 레벨업 함수
+    public void OnLevelUp()
     {
-        if (playerStats != null)
-        {
-            // 플레이어의 최대 체력을 2배로 늘립니다.
-            playerStats.maxHealth *= healthMultiplier;
-            // 현재 체력도 최대 체력에 맞춰 늘려줍니다.
-            playerStats.currentHealth = playerStats.maxHealth;
+        // 레벨을 1 증가시킵니다.
+        healthBoostLevel++;
+    }
 
-            // UI도 업데이트합니다.
-            if (UIManager.Instance != null)
-            {
-                UIManager.Instance.UpdateHealthUI((int)playerStats.currentHealth, (int)playerStats.maxHealth);
-            }
-
-        }
+    // PlayerWeaponManager가 체력 보너스 값을 요청할 때 호출되는 함수
+    public float GetHealthMultiplierBonus()
+    {
+        // 현재 레벨에 healthMultiplierBonus를 곱하여 총 보너스 값을 반환합니다.
+        // 예를 들어, 1레벨이면 100% (1.0f), 2레벨이면 200% (2.0f) 보너스.
+        return healthBoostLevel * healthMultiplierBonus;
     }
 }

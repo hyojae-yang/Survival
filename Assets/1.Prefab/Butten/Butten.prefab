@@ -264,8 +264,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uBB34\uAE30 \uC124\uBA85"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f45dba72e0c61c042b32ede028e3a75f, type: 2}
-  m_sharedMaterial: {fileID: 5340277446607620904, guid: f45dba72e0c61c042b32ede028e3a75f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 69f3099d201cdfe4d9ca8db6e724db6c, type: 2}
+  m_sharedMaterial: {fileID: -1655341691505602684, guid: 69f3099d201cdfe4d9ca8db6e724db6c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

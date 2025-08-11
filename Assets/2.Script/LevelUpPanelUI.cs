@@ -117,6 +117,7 @@ public class LevelUpPanelUI : MonoBehaviour
     {
         if (PlayerWeaponManager.Instance != null && selectedWeaponPrefabs.Count > optionIndex)
         {
+            // 선택된 무기 프리팹을 PlayerWeaponManager에 전달하여 레벨업/추가 로직을 처리하게 합니다.
             PlayerWeaponManager.Instance.LevelUpWeapon(selectedWeaponPrefabs[optionIndex]);
         }
 

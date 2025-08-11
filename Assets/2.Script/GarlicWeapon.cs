@@ -25,7 +25,7 @@ public class GarlicWeapon : Weapon
         float currentGarlicRadius = initialGarlicRadius + GetCurrentRangeIncrease();
 
         // 수정된 부분: 반경을 절반으로 줄여서 사용
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, currentGarlicRadius / 2f);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, currentGarlicRadius);
 
         foreach (Collider2D collider in colliders)
         {
