@@ -16,6 +16,7 @@ public class SettingsManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject); // 씬이 변경되어도 이 오브젝트를 유지
         }
         else
         {

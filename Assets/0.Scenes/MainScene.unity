@@ -1044,7 +1044,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 542233323900127018, guid: e92e067dbfbdfe34db8b0554629f7f0c, type: 3}
+  m_Sprite: {fileID: -3997839831992282006, guid: 0f1bacab604e1d8419054f862beece1a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2598,6 +2598,7 @@ MonoBehaviour:
   weaponPrefabs:
   - {fileID: 4467693950647364492, guid: a5c897ba941466f42879389af3979961, type: 3}
   - {fileID: 2439448046979460259, guid: 7e548294026b0fb479fde6dde0955a50, type: 3}
+  activeWeapons: []
 --- !u!1 &1576296989
 GameObject:
   m_ObjectHideFlags: 0
